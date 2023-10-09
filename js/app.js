@@ -9,11 +9,11 @@ let listadoCosas = [];
 //eventos
 
 formulario.addEventListener("submit", agregarCosa);
-//con esto hacemos que el listado se cargue cuando el documento esté todo cargado
+//con esto hacemos que el listado se muestre cuando el documento esté todo cargado
+
 document.addEventListener("DOMContentLoaded", () => {
     //para que listadoCosas, si no tiene nad en el localStorageno llegue como NULL, hay que hacer una validación || [] ya que sino, la función de crearListadoHTMl() no funcionará ya que no se puede hacer un forEach de un elemento null, tiene que hacerlo sobre un array, por eso le indicamos que, si no hay nada en el localStorage, coja la opción de ARRAY VACIO
-    listadoCosas = JSON.parse(localStorage.getItem(listadoCosas)) || [];
-    console.log(listadoCosas);
+    listadoCosas = JSON.parse(localStorage.getItem("listadoCosas")) || [];
 
     crearListadoHTML();
 });
@@ -35,7 +35,6 @@ function agregarCosa(e) {
         cosa, //cosa: cosa, esto se puede simplificar en poner solo una vez cosa, object literal y como clave pondrá cosa
     };
     listadoCosas = [...listadoCosas, cosaObj];
-    console.log(listadoCosas);
 
     //una vez hemos recogido lo que el usuario pone en el input, vamos a crear el listado en HTML
     crearListadoHTML();
@@ -64,10 +63,25 @@ function crearListadoHTML() {
     //primero validamos que esto funcione solo si se ha escrito algo en el input e itearmos sobre el [] de cosas
     if (listadoCosas.length > 0) {
         listadoCosas.forEach((item) => {
+            //creamos un botónpara eliminar cada cosa de la lista
+            const btnEliminar = document.createElement("a");
+            btnEliminar.classList.add("borrar-tweet");
+            btnEliminar.textContent = "X";
+
+            //añadimos la función de eliminar el elemento de la lista, hay que pasarle el id del elemento que quiero borrar
+            btnEliminar.onclick = () => {
+                borrarElementoLista(item.id);
+            };
+
             //creamos el HTML del listado
             const elementoQueMostrar = document.createElement("li");
+
             //Le añadimos texto
             elementoQueMostrar.innerText = item.cosa;
+
+            //Asignamos el botón al elemento
+            elementoQueMostrar.appendChild(btnEliminar);
+
             //lo apencheamos al HTML. Repite el elemento anterior cuando muestra la lisyta de cosas porque no estamos limpiando el HTML
             listaCosas.appendChild(elementoQueMostrar);
         });
@@ -85,4 +99,12 @@ function limpiarHTML() {
 
 function guardarLocalStorage() {
     localStorage.setItem("listadoCosas", JSON.stringify(listadoCosas));
+}
+
+function borrarElementoLista(id) {
+    //borramos las cosas del [] filtrando por el id que clicamos dejando en el array todos los elementos excepto el que he clicado
+    listadoCosas = listadoCosas.filter((item) => item.id !== id);
+
+    //tenemos que llamar de nuevo a crearListadoHTML() para que se renderice el actual HTML
+    crearListadoHTML();
 }
